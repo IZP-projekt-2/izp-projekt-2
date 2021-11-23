@@ -1,6 +1,6 @@
 U abc a b c bcs c x y zzz a qqq a
 S a b c
 S x y zzz
-R (a b) (b c) (x z) (z y)
+R (a b) (b c) (x zzz) (zzz y)
 C intersect 2 3
 C minus 2 3

@@ -106,6 +106,7 @@ typedef struct operation_parser
 int parse_line(FILE *input, Line *target);
 int parse_univerzum(FILE *input, Line *target);
 int parse_set(FILE *input, Line *target);
+int parse_relation(FILE *input, Line *target);
 
 /******************************************************************************/
 
@@ -114,6 +115,7 @@ static Univerzum univerzum;
 static OperationParser operation_parsers[] = {
     {def_univerzum, &parse_univerzum},
     {def_set, &parse_set},
+    {def_relation, &parse_relation},
     {0, NULL}}; // "null" element of array - used to stop iteration.
 
 /******************************************************************************/
@@ -341,7 +343,84 @@ int parse_set(FILE *input, Line *target)
     return 0;
 }
 
-// Inializes univezum values.
+int parse_relation(FILE *input, Line *target)
+{
+    unsigned len, index = 0;
+    char last_char, element[ELEMENT_MAX_SIZE + 1];
+    char *set_elements[univerzum.len * univerzum.len];
+    bool first = true;
+
+    while (1)
+    {
+        // fprintf(stderr, "%d ", index);
+
+        if (first)
+        {
+            if (fgetc(input) != '(')
+            {
+                fprintf(stderr, "Opening bracket expected.\n");
+                return 1;
+            }
+        }
+
+        last_char = load_word(input, element, &len, ELEMENT_MAX_SIZE);
+        set_elements[index] = univerzum_get_element(&univerzum, element);
+
+        if (len == 0)
+        {
+            if (first)
+                fprintf(stderr, "Unexpected space after '('.\n");
+            else
+                fprintf(stderr, "Elements separated by more than one space.\n");
+            return 1;
+        }
+
+        else if (set_elements[index++] == NULL ||
+                 (last_char != ' ' &&
+                  last_char != EOF &&
+                  last_char != '\n' &&
+                  last_char != ')'))
+        {
+            fprintf(stderr, "Element isn't defined in univezum.\n");
+            return 1;
+        }
+
+        else if (first && last_char == ')')
+        {
+            fprintf(stderr, "')' after first element in a relation.\n");
+            return 1;
+        }
+
+        else if (!first && last_char != ')')
+        {
+            fprintf(stderr, "')' expected after second element in relation.\n");
+            return 1;
+        }
+
+        else if (last_char == EOF || last_char == '\n')
+        {
+            fprintf(stderr, "Line ended unexpectedly.\n");
+            return 1;
+        }
+
+        if (!first && ((last_char = fgetc(input)) == EOF || last_char == '\n'))
+            break;
+
+        first = !first;
+    }
+
+    Set set;
+    if (set_init(&set, rel, set_elements, index))
+    {
+        fprintf(stderr, "Element repeated in set definition.\n");
+        return 1;
+    }
+    line_link_set(target, &set);
+
+    return 0;
+}
+
+// Initializes univezum values.
 void univerzum_ctor(Univerzum *uni)
 {
     uni->len = 0;
@@ -411,6 +490,7 @@ char *univerzum_get_element(Univerzum *uni, char element[])
     return NULL;
 }
 
+// TODO: check relation repetition
 int set_init(Set *set, SetType type, char **elements, unsigned len)
 {
     set->type = type;
@@ -426,11 +506,17 @@ int set_init(Set *set, SetType type, char **elements, unsigned len)
 
 // Adds element to a set. Returns 0 of element was added succesfully, 1 if
 // elements was already contained.
+// TODO: check relation repetition
 int set_add_element(Set *set, char *element)
 {
-    for (int i = 0; i < set->len; i++)
-        if (element == set->elements[i])
-            return 1;
+    if (set->type == rel)
+        // TODO
+        (void)42;
+
+    else
+        for (int i = 0; i < set->len; i++)
+            if (element == set->elements[i])
+                return 1;
 
     set->elements[set->len++] = element;
     return 0;
@@ -441,8 +527,15 @@ void set_print(Set *set)
     printf("%c ", (char)set->type);
 
     for (int i = 0; i < set->len; i++)
+    {
         if (set->type == els || set->type == uni)
             printf("%s ", set->elements[i]);
+        else if (set->type == rel)
+        {
+            printf("(%s %s) ", set->elements[i], set->elements[i + 1]);
+            i++;
+        }
+    }
 }
 
 void line_ctor(Line *line)
