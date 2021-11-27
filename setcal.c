@@ -137,7 +137,7 @@ void print_bool(bool b);
 void set_union(Set *set1, Set *set2, Univerzum *uni);
 void set_intersect(Set *set1, Set *set2, Univerzum *uni);
 Set * set_difference(Set *set1, Set *set2, Univerzum *uni, Set *result);
-
+Set * set_complement(Set *set1, Univerzum *uni, Set *result);
 
 int main(int argc, char **argv)
 {
@@ -145,8 +145,7 @@ int main(int argc, char **argv)
     FILE *input_file = open_input_file(argc, argv);
     read_file(input_file);
 
-    Set *result = NULL;
-    set_difference(lines[2].related_set, lines[3].related_set, uni, result);
+    
 
     fclose(input_file);
 }
@@ -697,6 +696,44 @@ Set * set_difference(Set *set1, Set *set2, Univerzum *uni, Set *result) {
         if(!found) 
         {
             set_add(&result, uni, set1->elements[i]);
+        }
+    }
+
+    set_print(&result);
+    printf("\n");
+
+    return &result;
+}
+
+/**
+ * @brief Returns pointer to complement of 1.set
+ * 
+ * @param set1 1.set
+ * @param uni Universe
+ */
+Set * set_complement(Set *set1, Univerzum *uni, Set *result) {
+    if(result == NULL)
+    {
+        set_init(&result, 'S', NULL, 0);
+    }
+    
+    // If element from 1.set IS NOT found in univerzum,
+    // it is added to result
+    for(int i = 0; i < (int)uni->len; i++) 
+    {
+        bool found = false;
+        
+        for(int j = 0; j < (int)set1->len; j++) 
+        {
+            if(uni->elements[i] == set1->elements[j]) 
+            {
+                found = true;
+                break;
+            }    
+        }
+        if(!found) 
+        {
+            set_add(&result, uni, uni->elements[i]);
         }
     }
 
