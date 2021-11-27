@@ -127,13 +127,16 @@ FILE *open_input_file(int argc, char **argv);
 void read_file(FILE *input_file);
 int load_word(FILE *input, char *target, unsigned *len, unsigned maxlen);
 bool is_letter(char ch);
+bool compare_strings(char* str1, char* str2);
 
 /******************************************************************************/
 int set_add(Set *set, Univerzum *uni, char element[]);
 void print_bool(bool b);
 
+// Set functions
 void set_union(Set *set1, Set *set2, Univerzum *uni);
 void set_intersect(Set *set1, Set *set2, Univerzum *uni);
+Set * set_difference(Set *set1, Set *set2, Univerzum *uni, Set *result);
 
 
 int main(int argc, char **argv)
@@ -141,6 +144,9 @@ int main(int argc, char **argv)
     univerzum_ctor(&univerzum);
     FILE *input_file = open_input_file(argc, argv);
     read_file(input_file);
+
+    Set *result = NULL;
+    set_difference(lines[2].related_set, lines[3].related_set, uni, result);
 
     fclose(input_file);
 }
@@ -583,12 +589,12 @@ void line_link_set(Line *line, Set *set)
 
 /*********************************************************************/
 int set_add(Set *set, Univerzum *uni, char element[]) {
-    set->elements = realloc(set->elements, set->len + sizeof(char *));
+    set->elements = realloc(set->elements, (set->len + 1) + sizeof(char *));
     if(set->elements == NULL) {
         fprintf(stderr,"Memory allocation failed");
         return 1;
     }
-    set->elements[set->len] = univerzum_get_element(uni, element);
+    set->elements[set->len] = element; //univerzum_get_element(uni, element);
     set->len++;
     return 0;
 }
@@ -646,4 +652,56 @@ void set_intersect(Set *set1, Set *set2, Univerzum *uni) {
     }
     set_print(&intersect_set);
     printf("\n");
+}
+
+/*bool compare_strings(char* str1, char* str2)
+{
+    for (int i = 0; str1[i] != '\0' || str2[i] != '\0'; i++)
+    {
+        if (str1[i] != str2[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}*/
+
+
+/**
+ * @brief Returns pointer to difference of 2 sets
+ * 
+ * @param set1 1.set
+ * @param set2 2.set
+ * @param uni Universe containing elements of the two sets
+ */
+Set * set_difference(Set *set1, Set *set2, Univerzum *uni, Set *result) {
+    if(result == NULL)
+    {
+        set_init(&result, 'S', NULL, 0);
+    }
+    
+    // if element is found in intersection, dont add it into set
+    // if found is false, it should be added cause it's not in intersection of 2 sets and it's in set 1
+    for(int i = 0; i < (int)set1->len; i++) 
+    {
+        bool found = false;
+        
+        for(int j = 0; j < (int)set2->len; j++) 
+        {
+            if(set1->elements[i] == set2->elements[j]) 
+            {
+                found = true;
+                break;
+            }    
+        }
+        if(!found) 
+        {
+            set_add(&result, uni, set1->elements[i]);
+        }
+    }
+
+    set_print(&result);
+    printf("\n");
+
+    return &result;
 }
