@@ -128,6 +128,14 @@ void read_file(FILE *input_file);
 int load_word(FILE *input, char *target, unsigned *len, unsigned maxlen);
 bool is_letter(char ch);
 
+/******************************************************************************/
+int set_add(Set *set, Univerzum *uni, char element[]);
+void print_bool(bool b);
+
+void set_union(Set *set1, Set *set2, Univerzum *uni);
+void set_intersect(Set *set1, Set *set2, Univerzum *uni);
+
+
 int main(int argc, char **argv)
 {
     univerzum_ctor(&univerzum);
@@ -571,4 +579,71 @@ void line_link_set(Line *line, Set *set)
 {
     line->related_set = malloc(sizeof(*set));
     *(line->related_set) = *set;
+}
+
+/*********************************************************************/
+int set_add(Set *set, Univerzum *uni, char element[]) {
+    set->elements = realloc(set->elements, set->len + sizeof(char *));
+    if(set->elements == NULL) {
+        fprintf(stderr,"Memory allocation failed");
+        return 1;
+    }
+    set->elements[set->len] = univerzum_get_element(uni, element);
+    set->len++;
+    return 0;
+}
+
+//prints the bool value
+void print_bool(bool b) {
+    printf(b ? "true" : "false");
+}
+
+/**
+ * @brief Prints the union of two sets
+ * 
+ * @param set1 1.set
+ * @param set2 2.set
+ * @param uni Universe containing elements of the two sets
+ */
+void set_union(Set *set1, Set *set2, Univerzum *uni) {
+    Set union_set = *set1;
+    //goes through the second set and if an element from it is not in the first set, adds it to the union 
+    for(unsigned i = 0; i < set2->len; i++) {
+        bool el_in_both = false;
+        unsigned j = 0;
+        for(; j < set1->len; j++) {
+            if(set2->elements[i] == set1->elements[j]) {
+                el_in_both = true;
+                break;
+            }    
+        }
+        if(!el_in_both) {
+            set_add(&union_set, uni, set2->elements[i]);
+        }
+    }
+    set_print(&union_set);
+    printf("\n");
+}
+
+/**
+ * @brief Prints the intersect of two sets
+ * 
+ * @param set1 1.set
+ * @param set2 2.set
+ * @param uni Universe containing elements of the two sets
+ */
+void set_intersect(Set *set1, Set *set2, Univerzum *uni) {
+    Set intersect_set;
+    set_init(&intersect_set, 'S', NULL, 0);
+    for(unsigned i = 0; i < set1->len; i++) {
+        unsigned j = 0;
+        for(; j < set2->len; j++) {
+            if(set1->elements[i] == set2->elements[j]) {
+                set_add(&intersect_set, uni, set1->elements[i]);
+                break;
+            }    
+        }
+    }
+    set_print(&intersect_set);
+    printf("\n");
 }
