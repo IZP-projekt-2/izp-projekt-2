@@ -27,6 +27,8 @@ void univerzum_expand(Univerzum *uni);
 int univerzum_add_element(Univerzum *uni, char element[]);
 char *univerzum_get_element(Univerzum *uni, char element[]);
 
+void print_univerzum(Univerzum *uni);
+
 /******************************************************************************/
 
 typedef enum
@@ -48,6 +50,7 @@ typedef struct
 int set_init(Set *set, SetType type, char **elements, unsigned len);
 int set_add_element(Set *set, char *element);
 void set_print(Set *set);
+  
 
 /******************************************************************************/
 
@@ -484,10 +487,21 @@ int univerzum_add_element(Univerzum *uni, char element[])
 // contained, returns NULL instead.
 char *univerzum_get_element(Univerzum *uni, char element[])
 {
-    for (unsigned i = 0; i < uni->len; i++)
+    for (int i = 0; i < (int)uni->len; i++)
         if (!strcmp(uni->elements[i], element))
             return uni->elements[i];
     return NULL;
+}
+
+// Displays univerzum in format
+// Univerzum: <1st element> <2nd element> ...
+void print_univerzum(Univerzum *uni)
+{
+    printf("\nUniverzum: ");
+    for(int i = 0; i < (int)uni->len; i++)
+    {
+        printf("%s ", uni->elements[i]);
+    }
 }
 
 // TODO: check relation repetition
