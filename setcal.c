@@ -654,7 +654,7 @@ void set_intersect(Set *set1, Set *set2, Univerzum *uni) {
     printf("\n");
 }
 
-/*bool compare_strings(char* str1, char* str2)
+bool compare_strings(char* str1, char* str2)
 {
     for (int i = 0; str1[i] != '\0' || str2[i] != '\0'; i++)
     {
@@ -664,7 +664,7 @@ void set_intersect(Set *set1, Set *set2, Univerzum *uni) {
         }
     }
     return true;
-}*/
+}
 
 
 /**
