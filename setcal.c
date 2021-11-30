@@ -723,7 +723,7 @@ Set * set_complement(Set *set1, Univerzum *uni, Set *result)
     {
         set_init(&result, 'S', NULL, 0);
     }
-
+  
     // If element from 1.set IS NOT found in univerzum,
     // it is added to result
     for(int i = 0; i < (int)uni->len; i++) 
