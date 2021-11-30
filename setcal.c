@@ -143,6 +143,7 @@ Set * set_empty(Set *set1, Univerzum *uni, Set *result);
 Set * set_subseteq(Set *set1, Set *set2, Univerzum *uni, Set *result);
 Set * set_subset(Set *set1, Set *set2, Univerzum *uni, Set *result);
 Set * set_equal(Set *set1, Set *set2, Univerzum *uni, Set *result);
+Set * set_card(Set *set1, Univerzum *uni, Set *result);
 
 
 int main(int argc, char **argv)
@@ -150,7 +151,6 @@ int main(int argc, char **argv)
     univerzum_ctor(&univerzum);
     FILE *input_file = open_input_file(argc, argv);
     read_file(input_file);
-
     
     fclose(input_file);
 }
@@ -756,26 +756,35 @@ Set * set_complement(Set *set1, Univerzum *uni, Set *result)
  * @param set1 1.set
  * @param uni Universe
  */
-// TODO: Fix this function
 Set * set_empty(Set *set1, Univerzum *uni, Set *result) 
 {
-    if(result == NULL)
-    {
-        set_init(&result, 'S', NULL, 0); 
-        // TODO: redefine set
-    }
     
     if ((int)set1->len <= 0)
     {
-        // TODO: return true (is empty)
-        // TODO: this line throws error
-        result->len = (unsigned)0;
+        printf("set is empty"); // TODO: delete this        
+        set_init(&result, bol, NULL, 0); 
     }
     else
     {
-        result->len = (unsigned)1;
+        printf("set is not empty"); // TODO: delete this     
+        set_init(&result, bol, NULL, 1); 
     }
-    printf("%d", (int)result->len);
+    
+    return &result;
+}
+
+
+/**
+ * @brief Returns length of set
+ * 
+ * @param set1 1.set
+ * @param uni Universe
+ */
+Set * set_card(Set *set1, Univerzum *uni, Set *result) 
+{
+    printf("lenght of set1 is: %d", set1->len); // TODO: delete this
+
+    set_init(&result, num, NULL, set1->len); 
     return &result;
 }
 
