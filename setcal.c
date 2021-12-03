@@ -35,8 +35,9 @@ typedef enum
 {
     uni = 85, // Ord value of U. Set containing all elements of univerzum.
     els = 83, // Ord value of S. Set containing elements of univezum.
-    rel = 82, // Ord value of R. Set containing relations.
+    REL = 82, // Ord value of R. Set containing relations.
     cst = 0,  // "Constant" set. TODO explain this.
+    BOL = -3
 } SetType;
 
 typedef struct
@@ -58,7 +59,7 @@ typedef enum
 {
     def_univerzum = uni,
     def_set = els,
-    def_relation = rel,
+    def_relation = REL,
     exe_command = 67 // ord value of C.
 } Operation;
 
@@ -130,22 +131,39 @@ bool is_letter(char ch);
 bool compare_strings(char* str1, char* str2);
 
 /******************************************************************************/
-int set_add(Set *set, Univerzum *uni, char element[]);
+int set_add(Set *set, char element[]);
 void print_bool(bool b);
+bool is_rel_el_in_set(Set * rel, Set * set, bool is_second);
 
 // Set functions
-void set_union(Set *set1, Set *set2, Univerzum *uni);
-void set_intersect(Set *set1, Set *set2, Univerzum *uni);
+Set * set_union(Set *set1, Set *set2, Set *union_set);
+Set * set_intersect(Set *set1, Set *set2, Set *intersect_set);
 Set * set_difference(Set *set1, Set *set2, Univerzum *uni, Set *result);
 Set * set_complement(Set *set1, Univerzum *uni, Set *result);
+
+// Relation functions
+Set * relation_reflexive(Set * args[]);
+Set * relation_symmetric(Set * args[]);
+Set * relation_antisymmetric(Set * args[]);
+Set * relation_transitive(Set * args[]);
+Set * relation_function(Set * args[]);
+Set * relation_domain(Set * args[]);
+Set * relation_codomain(Set * args[]);
+Set * relation_injective(Set * args[]);
+Set * relation_surjective(Set * args[]);
+Set * relation_bijective(Set * args[]);
+
+// Closures
+Set * closure_ref(Set * args[]);
+Set * closure_sym(Set * args[]);
+Set * closure_trans(Set * args[]);
+
 
 int main(int argc, char **argv)
 {
     univerzum_ctor(&univerzum);
     FILE *input_file = open_input_file(argc, argv);
     read_file(input_file);
-
-    
 
     fclose(input_file);
 }
@@ -426,7 +444,7 @@ int parse_relation(FILE *input, Line *target)
     }
 
     Set set;
-    if (set_init(&set, rel, set_elements, index))
+    if (set_init(&set, REL, set_elements, index))
     {
         fprintf(stderr, "Element repeated in set definition.\n");
         return 1;
@@ -536,7 +554,7 @@ int set_init(Set *set, SetType type, char **elements, unsigned len)
 // TODO: check relation repetition
 int set_add_element(Set *set, char *element)
 {
-    if (set->type == rel)
+    if (set->type == REL)
         // TODO
         (void)42;
 
@@ -557,7 +575,7 @@ void set_print(Set *set)
     {
         if (set->type == els || set->type == uni)
             printf("%s ", set->elements[i]);
-        else if (set->type == rel)
+        else if (set->type == REL)
         {
             printf("(%s %s) ", set->elements[i], set->elements[i + 1]);
             i++;
@@ -587,12 +605,13 @@ void line_link_set(Line *line, Set *set)
 }
 
 /*********************************************************************/
-int set_add(Set *set, Univerzum *uni, char element[]) {
-    set->elements = realloc(set->elements, (set->len + 1) + sizeof(char *));
-    if(set->elements == NULL) {
+int set_add(Set *set, char element[]) {
+    char ** tmp = realloc(set->elements, (set->len + 1) * sizeof(char *)); 
+    if(tmp == NULL) {
         fprintf(stderr,"Memory allocation failed");
         return 1;
     }
+    set->elements = tmp;
     set->elements[set->len] = element; //univerzum_get_element(uni, element);
     set->len++;
     return 0;
@@ -600,7 +619,7 @@ int set_add(Set *set, Univerzum *uni, char element[]) {
 
 //prints the bool value
 void print_bool(bool b) {
-    printf(b ? "true" : "false");
+    printf(b ? "true\n" : "false\n");
 }
 
 /**
@@ -608,10 +627,15 @@ void print_bool(bool b) {
  * 
  * @param set1 1.set
  * @param set2 2.set
- * @param uni Universe containing elements of the two sets
+ * @param union_set a set that will be returned as a union of set 1 and 2
+ * @return Set* of union of set 1 and 2
  */
-void set_union(Set *set1, Set *set2, Univerzum *uni) {
-    Set union_set = *set1;
+Set * set_union(Set *set1, Set *set2, Set *union_set) {
+    set_init(union_set, 'S', NULL, 0);
+    //*union_set = *set1;
+    for(unsigned i = 0; i < set1->len; i++) {
+        set_add(union_set, set1->elements[i]);
+    }
     //goes through the second set and if an element from it is not in the first set, adds it to the union 
     for(unsigned i = 0; i < set2->len; i++) {
         bool el_in_both = false;
@@ -623,11 +647,10 @@ void set_union(Set *set1, Set *set2, Univerzum *uni) {
             }    
         }
         if(!el_in_both) {
-            set_add(&union_set, uni, set2->elements[i]);
+            set_add(union_set, set2->elements[i]);
         }
     }
-    set_print(&union_set);
-    printf("\n");
+    return union_set;
 }
 
 /**
@@ -637,20 +660,21 @@ void set_union(Set *set1, Set *set2, Univerzum *uni) {
  * @param set2 2.set
  * @param uni Universe containing elements of the two sets
  */
-void set_intersect(Set *set1, Set *set2, Univerzum *uni) {
-    Set intersect_set;
-    set_init(&intersect_set, 'S', NULL, 0);
+Set * set_intersect(Set * set1, Set * set2, Set * intersect_set) {
+    set_init(intersect_set, 'S', NULL, 0);
+    //*intersect_set = *set1;
+    /*for(unsigned i = 0; i < set1->len; i++) {
+        set_add(intersect_set, set1->elements[i]);
+    }*/
     for(unsigned i = 0; i < set1->len; i++) {
-        unsigned j = 0;
-        for(; j < set2->len; j++) {
+        for(unsigned j = 0; j < set2->len; j++) {
             if(set1->elements[i] == set2->elements[j]) {
-                set_add(&intersect_set, uni, set1->elements[i]);
+                set_add(intersect_set, set1->elements[i]);
                 break;
             }    
         }
     }
-    set_print(&intersect_set);
-    printf("\n");
+    return intersect_set;
 }
 
 bool compare_strings(char* str1, char* str2)
@@ -695,7 +719,7 @@ Set * set_difference(Set *set1, Set *set2, Univerzum *uni, Set *result) {
         }
         if(!found) 
         {
-            set_add(&result, uni, set1->elements[i]);
+            set_add(&result, set1->elements[i]);
         }
     }
 
@@ -733,7 +757,7 @@ Set * set_complement(Set *set1, Univerzum *uni, Set *result) {
         }
         if(!found) 
         {
-            set_add(&result, uni, uni->elements[i]);
+            set_add(&result, uni->elements[i]);
         }
     }
 
@@ -741,4 +765,618 @@ Set * set_complement(Set *set1, Univerzum *uni, Set *result) {
     printf("\n");
 
     return &result;
+}
+
+/**
+ * @brief Finds if relation is reflexive
+ * 
+ * @param args array of arguments, args[0] is the relation
+ * @return Set* of type bool, where the bool value is saved
+ */
+Set * relation_reflexive(Set * args[]) {
+    
+    Set * rel = args[0];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = BOL;
+
+    int diff_elements = 0;
+    bool is_different;
+    int refl_pair = 0;
+    
+    //finds out how many different elements are in the relation
+    for(unsigned i = 0; i < rel->len; i++) {
+        is_different = true;
+        for(unsigned j = i + 1; j < rel->len; j++) {
+            if(strcmp(rel->elements[i], rel->elements[j]) == 0) {
+                is_different = false;
+                break;
+            }
+        }
+        if(is_different == true) {
+            diff_elements++;
+        }
+    }
+    //finds the number of pairs of the same element
+    for(unsigned i = 0; i < rel->len; i += 2) {
+        if(strcmp(rel->elements[i], rel->elements[i + 1]) == 0) {
+            refl_pair++;
+        }
+    }
+    result->len = (int)(diff_elements == refl_pair);
+    return result;
+}
+
+/**
+ * @brief Finds if relation is symmetric
+ * 
+ * @param args array of arguments, args[0] is the relation
+ * @return Set* of type bool, where the bool value is saved
+ */
+Set * relation_symmetric(Set * args[]) {
+
+    Set * rel = args[0];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = BOL;
+
+    for(unsigned i = 0; i < rel->len; i += 2) {
+        bool is_symm = false;
+        //for each pair tries to find its symmetric pair
+        for(unsigned j = 0; j < rel->len; j +=2) {
+            if(strcmp(rel->elements[i], rel->elements[j + 1]) == 0
+            && strcmp(rel->elements[i + 1], rel->elements[j]) == 0) {
+                is_symm = true;
+                break; 
+            }
+        }
+        if(!is_symm) {
+            result->len = (int)(false);
+            return result;
+        }
+    }
+    result->len = (int)(true);
+    return result;
+}
+
+/**
+ * @brief Finds if relation is antisymmetric
+ * 
+ * @param args array of arguments, args[0] is the relation
+ * @return Set* of type bool, where the bool value is saved
+ */
+Set * relation_antisymmetric(Set * args[]) {
+    
+    Set * rel = args[0];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = BOL;
+
+    for(unsigned i = 0; i < rel->len; i += 2) {
+        bool is_anti = true;
+        //if a pair has two same elements it ignores the pair
+        if(strcmp(rel->elements[i], rel->elements[i + 1]) == 0) {
+            continue;
+        }
+        //for each pair tries to find its symmetric pair
+        for(unsigned j = 0; j < rel->len; j +=2) {
+            if(strcmp(rel->elements[i], rel->elements[j + 1]) == 0
+            && strcmp(rel->elements[i + 1], rel->elements[j]) == 0) {
+                is_anti = false;
+                break; 
+            }
+        }
+        if(!is_anti) {
+            result->len = (int)(false);
+            return result;
+        }
+    }
+    result->len = (int)(true);
+    return result;
+}
+
+/**
+ * @brief Finds if relation is transitive
+ * 
+ * @param args array of arguments, args[0] is the relation
+ * @return Set* of type bool, where the bool value is saved
+ */
+Set * relation_transitive(Set * args[]) {
+    
+    Set * rel = args[0];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = BOL;
+
+    for(unsigned i = 0; i < rel->len; i += 2) {
+        bool is_tran = false;
+        if(strcmp(rel->elements[i], rel->elements[i + 1]) == 0) {
+            continue;
+        }
+        //tries to find if there is a pair j with the same first element 
+        //as the second element of the pair i, if there isn't, 
+        //pair i is transitive
+        for(unsigned j = 0; j < rel->len; j += 2) {
+            if(strcmp(rel->elements[i + 1],rel->elements[j]) == 0) {
+                //tries to find pair k, that is the transitive closure of 
+                //pairs i and j
+                for(unsigned k = 0; k < rel->len; k += 2) {
+                    if(strcmp(rel->elements[i],rel->elements[k]) == 0 
+                    && strcmp(rel->elements[j + 1],rel->elements[k + 1]) == 0){
+                        is_tran = true;
+                        break;    
+                    }
+                }
+                if(!is_tran) {
+                    result->len = (int)(false);
+                    return result;
+                }
+            }
+        }
+    }
+    result->len = (int)(true);
+    return result;  
+}
+
+/**
+ * @brief Finds if relation is a function
+ * 
+ * @param args array of arguments, args[0] is the relation
+ * @return Set* of type bool, where the bool value is saved
+ */
+Set * relation_function(Set * args[]) {
+
+    Set * rel = args[0];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = BOL;
+
+    for(unsigned i = 0; i < rel->len; i+=2) {
+        for(unsigned j = i + 2; j < rel->len; j += 2) {
+            if(strcmp(rel->elements[i],rel->elements[j]) == 0) {
+                result->len = (int)(false);
+                return result;
+            }
+        }
+    }
+    result->len = (int)(true);
+    return result;
+}
+
+/**
+ * @brief Finds a domain of a relation and returns it
+ * 
+ * @param args array of arguments, args[0] is the relation
+ * @return Set* containing the domain
+ */
+Set * relation_domain(Set * args[]) {
+    
+    Set * rel = args[0];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = els;
+    result->len = 0;
+    result->elements = NULL;
+
+    bool is_once;
+    for(unsigned i = 0; i < rel->len; i += 2) {
+        is_once = true;
+        for(unsigned j = 0; j < result->len; j++) {
+            if(strcmp(rel->elements[i],result->elements[j]) == 0) {
+                is_once = false;
+                break;
+            }
+        }
+        if(is_once == true) {
+            if(set_add(result, rel->elements[i]) == 1)
+                return NULL;    
+        }
+    }
+    return result;
+}
+
+/**
+ * @brief Finds a codomain of a relation and returns it
+ * 
+ * @param args array of arguments, args[0] is the relation
+ * @return Set* containing the codomain
+ */
+Set * relation_codomain(Set * args[]) {
+    
+    Set * rel = args[0];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = els;
+    result->len = 0;
+    result->elements = NULL;
+
+    bool is_once;
+    for(unsigned i = 0; i < rel->len; i += 2) {
+        is_once = true;
+        for(unsigned j = 0; j < result->len; j++) {
+            if(strcmp(rel->elements[i + 1],result->elements[j]) == 0) {
+                is_once = false;
+                break;
+            }
+        }
+        if(is_once == true) {
+            if(set_add(result, rel->elements[i + 1]) == 1)
+                return NULL;    
+        }
+    }
+    return result;
+}
+
+
+/**
+ * @brief Finds if either every first or second element from a relation is in a set
+ * 
+ * @param rel 
+ * @param set 
+ * @param is_second decides if to check first or second el. in the relation
+ * @return true if all el. on 1. or 2. position of the relation are in set
+ * @return false if one or more elements are in relation and not in the set
+ */
+bool is_rel_el_in_set(Set * rel, Set * set, bool is_second) {
+    
+    bool in_set;
+    for(unsigned i = is_second; i < rel->len; i += 2) {
+        in_set = false;
+        for(unsigned j = 0; j < set->len; j++) {
+            if(strcmp(rel->elements[i],set->elements[j]) == 0) {
+                in_set = true;
+                break;
+            }
+        }
+        if(!in_set) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * @brief Finds if relation is injective
+ * 
+ * @param args array of arguments, args[0] is the relation, args[1,2]
+ *             are the 2 sets
+ * @return Set* of type bool, where the bool value is saved
+ */
+Set * relation_injective(Set * args[]) {
+    
+    Set * rel = args[0];
+    Set * set1 = args[1];
+    Set * set2 = args[2];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = BOL;
+
+    if(!is_rel_el_in_set(rel, set1, false) || !is_rel_el_in_set(rel, set2, true)) {
+        fprintf(stderr, "Error, an element in the relation is not in a set");
+        return NULL;
+    }
+ 
+    if(set1->len > set2->len || rel->len/2 != set1->len ) {
+        result->len = (int)(false);
+        return result;
+    }
+    for (unsigned i = 0; i < rel->len; i += 2) {
+        for (unsigned j = i + 2; j < rel->len; j += 2) {
+            if(strcmp(rel->elements[i],rel->elements[j]) == 0 
+            || strcmp(rel->elements[i + 1],rel->elements[j + 1]) == 0) {
+                result->len = (int)(false);
+                return result;
+            }
+        }
+    }
+    result->len = (int)(true);
+    return result;
+}
+
+/**
+ * @brief Finds if relation is surjective
+ * 
+ * @param args array of arguments, args[0] is the relation, args[1,2]
+ *             are the 2 sets
+ * @return Set* of type bool, where the bool value is saved
+ */
+Set * relation_surjective(Set * args[]) {
+    
+    Set * rel = args[0];
+    Set * set1 = args[1];
+    Set * set2 = args[2];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = BOL;
+
+    if(!is_rel_el_in_set(rel, set1, false) || !is_rel_el_in_set(rel, set2, true)) {
+        fprintf(stderr, "Error, an element in the relation is not in a set");
+        return NULL;
+    }
+
+    if(set1->len < set2->len || rel->len/2 != set1->len ) {
+        result->len = (int)(false);
+        return result;
+    }
+
+    unsigned diff_codomain = 0;
+    bool is_different;
+    //counts the number of different second elements
+    for(unsigned i = 0; i < rel->len; i += 2) {
+        is_different = true;
+        for(unsigned j = i + 2; j < rel->len; j += 2) {
+            if(strcmp(rel->elements[i + 1], rel->elements[j + 1]) == 0) {
+                is_different = false;
+                break;
+            }
+        }
+        if(is_different == true) {
+            diff_codomain++;
+        }
+    }
+    
+    //if this if were false, there would be some second element not used 
+    if(diff_codomain != set2->len) {
+        result->len = (int)(false);
+        return result;
+    }
+    
+    //checks if no two first elements are the same
+    for (unsigned i = 0; i < rel->len; i += 2) {
+        for (unsigned j = i + 2; j < rel->len; j += 2) {
+            if(strcmp(rel->elements[i],rel->elements[j]) == 0) {
+                result->len = (int)(false);
+                return result;
+            }
+        }
+    }
+    result->len = (int)(true);
+    return result;
+}
+
+/**
+ * @brief Finds if relation is bijective
+ * 
+ * @param args array of arguments, args[0] is the relation, args[1,2]
+ *             are the 2 sets
+ * @return Set* of type bool, where the bool value is saved
+ */
+Set * relation_bijective(Set * args[]) {
+    
+    Set * rel = args[0];
+    Set * set1 = args[1];
+    Set * set2 = args[2];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = BOL;
+
+    if(!is_rel_el_in_set(rel, set1, false) || !is_rel_el_in_set(rel, set2, true)) {
+        fprintf(stderr, "Error, an element in the relation is not in a set");
+        return NULL;
+    }
+    
+    if(set1->len != set2->len || rel->len/2 != set1->len) {
+        result->len = (int)(false);
+        return result;
+    }
+    for (unsigned i = 0; i < rel->len; i += 2) {
+        for (unsigned j = i + 2; j < rel->len; j += 2) {
+            if(strcmp(rel->elements[i],rel->elements[j]) == 0
+            || strcmp(rel->elements[i + 1],rel->elements[j + 1]) == 0){
+                result->len = (int)(false);
+                return result;
+            }
+        }
+    }
+    result->len = (int)(true);
+    return result;
+}
+
+/**
+ * @brief Finds and returns the reflexive closure of a relation
+ * 
+ * @param args array of arguments, args[0] is the relation
+ * @return Set* containing the closure
+ */
+Set * closure_ref(Set * args[]) {
+    
+    Set * rel = args[0];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = REL;
+    result->len = 0;
+    result->elements = NULL;
+    
+    //check if is not already reflexive
+    Set * is_refl_set = relation_reflexive(&rel);
+    if(is_refl_set->len == true) {
+        free(is_refl_set);
+        return rel;
+    }
+    free(is_refl_set);
+
+    for(unsigned i = 0; i < rel->len; i++) {
+        if(set_add(result,rel->elements[i]) == 1)
+            return NULL;
+    }
+    bool first_refl;
+    bool second_refl;
+    for(unsigned i = 0; i < result->len; i += 2) {
+        first_refl = false;
+        second_refl = false;
+        for(unsigned j = 0; j < result->len; j += 2) {
+            //checks if there is a reflexive pair for the first element
+            if(strcmp(result->elements[i],result->elements[j]) == 0
+            &&strcmp(result->elements[i],result->elements[j + 1]) == 0) {
+                first_refl = true;
+            }
+            //checks if there is a reflexive pair for the second element
+            if(strcmp(result->elements[i + 1],result->elements[j]) == 0
+            &&strcmp(result->elements[i + 1],result->elements[j + 1]) == 0) {
+                second_refl = true;
+            }
+            if(first_refl == true && second_refl == true) {
+                break;
+            }
+        }
+        if(first_refl == false) {
+            if(set_add(result, result->elements[i]) == 1)
+                return NULL;
+            if(set_add(result, result->elements[i]) == 1)
+                return NULL;
+        }
+        if(second_refl == false) {
+            if(set_add(result, result->elements[i + 1]) == 1)
+                return NULL;
+            if(set_add(result, result->elements[i + 1]) == 1)
+                return NULL;
+        }
+    }
+    return result;
+}
+
+/**
+ * @brief Finds and returns the symmetric closure of a relation
+ * 
+ * @param args array of arguments, args[0] is the relation
+ * @return Set* containing the closure
+ */
+Set * closure_sym(Set * args[]) {
+
+    Set * rel = args[0];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = REL;
+    result->len = 0;
+    result->elements = NULL;
+
+    //check if is not already symmetric
+    Set * is_symm_set = relation_symmetric(&rel);
+    if(is_symm_set->len == true) {
+        free(is_symm_set);
+        return rel;
+    }
+    free(is_symm_set);
+    
+    for(unsigned i = 0; i < rel->len; i++) {
+        if(set_add(result,rel->elements[i]) == 1)
+            return NULL;
+    }
+
+    bool is_symm;
+    for(unsigned i = 0; i < result->len; i += 2) {
+        is_symm = false;
+        for(unsigned j = 0; j < result->len; j += 2) {
+            if(strcmp(result->elements[i],result->elements[j + 1]) == 0
+            && strcmp(result->elements[i + 1],result->elements[j]) == 0) {
+                is_symm = true;
+                break;
+            }
+        }
+        if(!is_symm) {
+            if(set_add(result, result->elements[i + 1]) == 1)
+                return NULL;
+            if(set_add(result, result->elements[i]) == 1)
+                return NULL;
+        }
+    }
+    return result;    
+}
+
+/**
+ * @brief Finds and returns the transitive closure of a relation
+ * 
+ * @param args array of arguments, args[0] is the relation
+ * @return Set* containing the closure
+ */
+Set * closure_trans(Set * args[]) {
+    
+    Set * rel = args[0];
+    Set * result = malloc(sizeof(int));
+    if(result == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return NULL;
+    }
+    result->type = REL;
+    result->len = 0;
+    result->elements = NULL;
+
+    //check if is not already reflexive
+    Set * is_trans_Set = relation_transitive(&rel);
+    if(is_trans_Set->len == true) {
+        free(is_trans_Set);
+        return rel;
+    }
+    free(is_trans_Set);
+
+    for(unsigned i = 0; i < rel->len; i++) {
+        if(set_add(result,rel->elements[i]) == 1)
+            return NULL;
+    }
+
+    for(unsigned i = 0; i < result->len; i += 2) {
+        bool is_tran = false;
+        if(strcmp(result->elements[i], result->elements[i + 1]) == 0) {
+            continue;
+        }
+        //tries to find if there is a pair j with the same first element 
+        //as the second element of the pair i, if there isn't, 
+        //pair i is transitive
+        for(unsigned j = 0; j < result->len; j += 2) {
+            if(strcmp(result->elements[i + 1],result->elements[j]) == 0) {
+                //tries to find pair k, that is the transitive closure of 
+                //pairs i and j
+                for(unsigned k = 0; k < result->len; k += 2) {
+                    if(strcmp(result->elements[i],result->elements[k]) == 0 
+                    && strcmp(result->elements[j + 1],result->elements[k + 1]) == 0){
+                        is_tran = true;
+                        break;    
+                    }
+                }
+                if(!is_tran) {
+                    if(set_add(result,result->elements[i]) == 1)
+                        return NULL;
+                    if(set_add(result,result->elements[j + 1]) == 1)
+                        return NULL;
+                }
+            }
+        }
+    }
+    return result;
 }
