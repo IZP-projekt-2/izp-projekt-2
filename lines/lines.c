@@ -7,7 +7,7 @@
  * @param operation Line operation identifier.
  * @return Pointer to Line struct on a heap or NULL on error.
  */
-Line *lines_ctor(Operation operation)
+Line *line_ctor(Operation operation)
 {
     Line *heap_pointer = malloc(sizeof(Line));
 
@@ -32,6 +32,12 @@ Line *lines_ctor(Operation operation)
 
 Set *line_get_set(Line *line)
 {
+    if (line == NULL)
+    {
+        fprintf(stderr, "Line doesn't exist.\n");
+        return NULL;
+    }
+
     if (line->related_set != NULL)
         return line->related_set;
 
@@ -50,6 +56,12 @@ Set *line_get_set(Line *line)
  */
 Set *line_exec(Line *line)
 {
+    if (line == NULL)
+    {
+        fprintf(stderr, "Line isn't defined.\n");
+        return NULL;
+    }
+
     if (line->operation != exe_command)
     {
         fprintf(stderr, "Trying to execute non-command line.\n");
@@ -63,7 +75,10 @@ Set *line_exec(Line *line)
     }
 
     unsigned param = 0; /** @todo make use of a param*/
+
     Set *line_args[MAX_COMMAND_ARGS];
+    for (int i = 0; i < MAX_COMMAND_ARGS; i++)
+        line_args[i] = NULL;
 
     if (eval_args(line->args, line->expected_args, line_args, &param))
     {
@@ -154,21 +169,16 @@ int eval_args(unsigned arglist[],
     for (i = 0; i < MAX_COMMAND_ARGS; i++)
     {
         unsigned arg = arglist[i];
+        CommandArgumentType expected_arg = expected[i];
 
-        switch (expected[i])
-        {
-
-        case non:
-            goto exit_loop;
+        if (expected_arg == non)
             break;
 
-        case num:
+        else if (expected_arg == num)
             target[i] = const_set_ctor(num, arg);
-            break;
 
-        case rel:
-        case els:
-
+        else if (expected_arg == els || expected_arg == rel)
+        {
             if (arg > MAX_LINES)
             {
                 fprintf(stderr, "Argument too large (%d).\n", arg);
@@ -180,30 +190,30 @@ int eval_args(unsigned arglist[],
             if (set == NULL)
                 return 1;
 
-            if ((CommandArgumentType)set->type != expected[i])
-            /** @todo will fail with univezum */
-            {
-                fprintf(stderr,
-                        "Set on line %d isn't of an expected type.\n", arg);
-                return 1;
-            }
+            if ((CommandArgumentType)set->type != expected_arg)
+                if (!(set->type == uni && expected_arg == elements))
+                {
+                    fprintf(stderr,
+                            "Set on line %d isn't of an expected type.\n", arg);
+                    return 1;
+                }
 
-            break;
+            target[i] = set;
+        }
 
-        default:
+        else
+        {
             fprintf(stderr, "Unsupported argument type.\n");
             return 1;
         }
+    }
 
-    exit_loop:; // Cannot break loop inside switch.
+    *param = arglist[i];
 
-        *param = arglist[i];
-
-        if (i <= MAX_COMMAND_ARGS && arglist[i + 1] != 0)
-        {
-            fprintf(stderr, "Too many arguments.\n");
-            return 1;
-        }
+    if (i <= MAX_COMMAND_ARGS && arglist[i + 1] != 0)
+    {
+        fprintf(stderr, "Too many arguments.\n");
+        return 1;
     }
 
     return 0;
