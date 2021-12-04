@@ -1,5 +1,16 @@
-run: setcal
-	$ ./setcal input.txt
+CFLAGS = -std=c99 -Wall -Wextra -Werror
+test_dirs = set loading
+
+.PHONY: test $(test_dirs)
+
+test: $(test_dirs)
+	
+$(test_dirs): 
+	@ echo "--- Running test for $@ --- \n"
+	@ -$(MAKE) -C $@ CFLAGS="$(CFLAGS)"
+	@ echo "\n--- Test completed ---\n\n"
 
 compile: setcal.c
-	$ gcc -std=c99 -Wall -Wextra -Werror setcal.c -o setcal
+
+include $(addsufix /Makefile $(test_dirs))
+
