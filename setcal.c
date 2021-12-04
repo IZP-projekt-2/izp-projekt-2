@@ -1390,6 +1390,7 @@ Set * closure_trans(Set * args[]) {
     return result;
 }
 
+/*
  * @brief Returns if set is empty
  * 
  * @param set1 1.set
@@ -1401,12 +1402,12 @@ Set * set_empty(Set *set1, Univerzum *uni, Set *result)
     if ((int)set1->len <= 0)
     {
         printf("set is empty"); // TODO: delete this        
-        set_init(&result, bol, NULL, 0); 
+        set_init(&result, BOL, NULL, 0); 
     }
     else
     {
         printf("set is not empty"); // TODO: delete this     
-        set_init(&result, bol, NULL, 1); 
+        set_init(&result, BOL, NULL, 1); 
     }
     
     return &result;
@@ -1455,13 +1456,13 @@ Set * set_subseteq(Set *set1, Set *set2, Univerzum *uni, Set *result)
         if(!found) 
         {
             printf("is not subset or equal"); // TODO: delete this
-            set_init(&result, bol, NULL, 0);
+            set_init(&result, BOL, NULL, 0);
             return &result;
         }
     }
 
     printf("is subset or equal"); // TODO: delete this
-    set_init(&result, bol, NULL, 1);
+    set_init(&result, BOL, NULL, 1);
     return &result;
 }
 
@@ -1495,7 +1496,7 @@ Set * set_subset(Set *set1, Set *set2, Univerzum *uni, Set *result)
         if(!found) 
         {
             printf("is not subset"); // TODO: delete this
-            set_init(&result, bol, NULL, 0);
+            set_init(&result, BOL, NULL, 0);
             return &result;
         }
     }
@@ -1505,12 +1506,12 @@ Set * set_subset(Set *set1, Set *set2, Univerzum *uni, Set *result)
         // sets are equal 
         // (all elements is set1 is in set2 and they have same length)
         printf("is not subset"); // TODO: delete this
-        set_init(&result, bol, NULL, 0);
+        set_init(&result, BOL, NULL, 0);
     }
     else
     {
         printf("is subset"); // TODO: delete this
-        set_init(&result, bol, NULL, 1);
+        set_init(&result, BOL, NULL, 1);
     }
     return &result;
 }
@@ -1545,7 +1546,7 @@ Set * set_equal(Set *set1, Set *set2, Univerzum *uni, Set *result)
         if(!found) 
         {
             printf("is not equal"); // TODO: delete this
-            set_init(&result, bol, NULL, 0);
+            set_init(&result, BOL, NULL, 0);
             return &result;
         }
     }
@@ -1555,12 +1556,12 @@ Set * set_equal(Set *set1, Set *set2, Univerzum *uni, Set *result)
         // sets are equal 
         // (all elements is set1 is in set2 and they have same length)
         printf("is equal"); // TODO: delete this
-        set_init(&result, bol, NULL, 1);
+        set_init(&result, BOL, NULL, 1);
     }
     else
     {
         printf("is not equal"); // TODO: delete this
-        set_init(&result, bol, NULL, 0);
+        set_init(&result, BOL, NULL, 0);
     }
     return &result;
 }
