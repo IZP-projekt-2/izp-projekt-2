@@ -17,6 +17,8 @@ bool is_constant_type(SetType type)
  * prints to a stderr and returns NULL. Cannot create "constant" sets - for that
  * use const_set_ctor.
  *
+ * @todo add 'black listed' elements - command names + true/false
+ *
  * @param type Type of a set.
  * @param init_elements List of strings (elements) or NULL.
  * @param init_len Length of init_elements.
@@ -121,6 +123,14 @@ char *set_get_element(Set *set, char element[])
     return NULL;
 }
 
+/**
+ * Checks if relation is already defined in a set.
+ *
+ * @param set Set to be searched.
+ * @param first String representing first element of a relation.
+ * @param second String representing second element of a relation.
+ * @return Bool.
+ */
 bool set_contains_relation(Set *set, char *first, char *second)
 {
     if (set->type != rel)
@@ -137,6 +147,16 @@ bool set_contains_relation(Set *set, char *first, char *second)
     return false;
 }
 
+/**
+ * Adds elements to a set. If given set is set of relations then expects odd
+ * number of elements.
+ *
+ * @param set Set to be added to.
+ * @param elements List of elements.
+ * @param len Number of elements to be added.
+ * @return 0 if addinf was succesful. On any errors prints to a stderr and
+ * returns 1.
+ */
 int set_add_elements(Set *set, char *elements[], int len)
 {
     if (is_constant_type(set->type))
@@ -216,6 +236,12 @@ int set_add_elements(Set *set, char *elements[], int len)
     return 0;
 }
 
+/**
+ * Prints set to a stream.
+ *
+ * @param set Set to be printed.
+ * @param where Stream where the set is printed.
+ */
 void set_print(Set *set, FILE *where)
 {
     if (set->type == num)
@@ -240,13 +266,15 @@ void set_print(Set *set, FILE *where)
     fprintf(where, "\n");
 }
 
+/**
+ * Set destructor.
+ *
+ * @param set Pointer to set to be destructed.
+ */
 void set_dtor(Set *set)
 {
     if (set != NULL)
-    {
-        if (set->elements != NULL)
-            free(set->elements);
+        free(set->elements);
 
-        free(set);
-    }
+    free(set);
 }
