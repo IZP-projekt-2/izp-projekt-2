@@ -1,10 +1,10 @@
-objects = ../set/set.o loading.o test.o
+objects = ../set/set.o ../commands/commands.o lines.o test.o
 
 .PHONY: clean
 .SILENT: $(objects)
 
 test_set: compile
-	@ -./test input.txt
+	@ -./test
 	@ $(MAKE) clean
 
 compile: $(objects)
@@ -13,4 +13,4 @@ compile: $(objects)
 clean: 
 	@ -rm $(objects) test
 
-$(objects): loading.h
+$(objects): lines.h
