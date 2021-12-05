@@ -16,7 +16,8 @@ typedef enum arg_type
             // raised.
 } CommandArgumentType;
 
-typedef CommandArgumentType CommandArgs[MAX_COMMAND_ARGS + 1];
+typedef CommandArgumentType Arglist[MAX_COMMAND_ARGS + 1];
+typedef CommandArgumentType *CommandArgs;
 typedef Set *(*Command)(Set *args[]);
 
 Set *intersect(Set *args[]);
@@ -25,7 +26,7 @@ typedef struct name_command
 {
     char *name;
     Command command;
-    CommandArgs expected_args;
+    Arglist expected_args;
 } NameCommand;
 
 static NameCommand commands[] = {

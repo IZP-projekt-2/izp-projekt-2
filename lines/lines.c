@@ -20,12 +20,13 @@ Line *line_ctor(Operation operation)
     heap_pointer->operation = operation;
     heap_pointer->related_set = NULL;
     heap_pointer->command = NULL;
+    heap_pointer->expected_args = NULL;
 
     for (int i = 0; i < MAX_COMMAND_ARGS + 1; i++)
         heap_pointer->args[i] = 0;
 
-    for (int i = 0; i < MAX_COMMAND_ARGS; i++)
-        heap_pointer->expected_args[i] = non;
+    // for (int i = 0; i < MAX_COMMAND_ARGS; i++)
+    //     heap_pointer->expected_args[i] = non;
 
     return heap_pointer;
 }
@@ -164,6 +165,12 @@ int eval_args(unsigned arglist[],
               Set *target[],
               unsigned *param)
 {
+    if (expected == NULL)
+    {
+        fprintf(stderr, "Argument patter not specified.\n");
+        return 1;
+    }
+
     int i = 0;
 
     for (i = 0; i < MAX_COMMAND_ARGS; i++)

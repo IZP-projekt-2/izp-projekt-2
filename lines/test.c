@@ -40,13 +40,14 @@ int main()
     assert(lines[2]->related_set->len == 2);
     assert(lines[3]->related_set->len == 3);
 
-    // CommandArgs com_args = {elements, elements, non};
+    Arglist com_args = {elements, elements, non};
     // unsigned args[] = {2, 3};
 
     lines[4]->command = &intersect;
-    lines[4]->expected_args[0] = elements;
-    lines[4]->expected_args[1] = elements;
-    lines[4]->expected_args[2] = non;
+    lines[4]->expected_args = com_args;
+    // lines[4]->expected_args[0] = elements;
+    // lines[4]->expected_args[1] = elements;
+    // lines[4]->expected_args[2] = non;
 
     lines[4]->args[0] = 1;
     lines[4]->args[1] = 3;
