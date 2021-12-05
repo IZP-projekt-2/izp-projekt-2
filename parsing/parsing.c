@@ -168,13 +168,6 @@ int parse_file(FILE *file)
 
     for (int line_index = 1;; line_index++)
     {
-        if (line_index > MAX_LINES)
-        {
-            fprintf(stderr, "Too many lines in input file (max: %d).\n",
-                    MAX_LINES);
-            return 1;
-        }
-
         Line *line = line_ctor(0);
         int res = parse_line(file, line);
 
@@ -184,6 +177,13 @@ int parse_file(FILE *file)
             if (res == EOF)
                 break;
             return res;
+        }
+
+        if (line_index > MAX_LINES)
+        {
+            fprintf(stderr, "Too many lines in input file (max: %d).\n",
+                    MAX_LINES);
+            return 1;
         }
 
         lines[line_index] = line;

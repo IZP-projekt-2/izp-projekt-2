@@ -1,7 +1,5 @@
 #include "parsing.h"
 
-// "null" element of array - used to stop iteration.
-
 int main(int argc, char **argv)
 {
     black_listed = set_ctor(uni);
@@ -15,6 +13,8 @@ int main(int argc, char **argv)
 
     for (int i = 1;; i++)
     {
+        executed_next = 0;
+
         Line *line = lines[i];
         if (line == NULL)
             break;
@@ -25,6 +25,9 @@ int main(int argc, char **argv)
             return 1;
 
         set_print(set, stdout);
+
+        if (executed_next)
+            i = executed_next - 1; // i++
     }
 
     lines_dtor();

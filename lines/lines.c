@@ -94,11 +94,18 @@ Set *line_exec(Line *line)
 
     Set *result = line->command(line_args);
 
-    if (param && result->type != bol)
+    if (param)
     {
-        fprintf(stderr, "Too many arguments. \
+
+        if (result->type != bol)
+        {
+            fprintf(stderr, "Too many arguments. \
                         Non-bool returning commands don't support param\n");
-        return NULL;
+            return NULL;
+        }
+
+        if (!result->len)
+            executed_next = param;
     }
 
     discard_args(line_args);

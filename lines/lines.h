@@ -26,7 +26,8 @@ typedef struct line
                                          // any usecase - 0th line doesn't exist
 } Line;
 
-Line *lines[MAX_LINES + 1]; /** @todo Change to 'static' */
+unsigned executed_next;
+Line *lines[MAX_LINES + 2]; /** @todo Change to 'static' */
 
 Line *line_ctor(Operation operation);
 Set *line_get_set(Line *line); // If not asociated try to get it.

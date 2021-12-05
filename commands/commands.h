@@ -22,6 +22,7 @@ typedef Set *(*Command)(Set *args[]);
 
 Set *intersect(Set *args[]);
 Set *complement(Set *args[]);
+Set *subseteq(Set *args[]);
 
 typedef struct name_command
 {
@@ -40,7 +41,7 @@ static NameCommand commands[] = {
     {"union", NULL, {elements, elements, non}},
     {"intersect", &intersect, {elements, elements, non}},
     {"minus", NULL, {elements, elements, non}},
-    {"subseteq", NULL, {elements, elements, non}},
+    {"subseteq", &subseteq, {elements, elements, non}},
     {"subset", NULL, {elements, elements, non}},
     {"equals", NULL, {elements, elements, non}},
 
@@ -60,7 +61,7 @@ static NameCommand commands[] = {
     {"closure_ref", NULL, {relations, non}},
     {"closure_sym", NULL, {relations, non}},
     {"closure_trans", NULL, {relations, non}},
-    {"select", NULL, {elements, number, non}},
+    // {"select", NULL, {elements, number, non}},
     {NULL, NULL, {non}},
 };
 

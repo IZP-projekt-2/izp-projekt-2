@@ -16,12 +16,6 @@ Set *intersect(Set *args[])
     return intersect_set;
 }
 
-/**
- * @brief Returns pointer to complement of 1.set
- *
- * @param set1 1.set
- * @param uni Universe
- */
 Set *complement(Set *args[])
 {
     Set *set = args[0];
@@ -71,42 +65,17 @@ Set *complement(Set *args[])
 //     return &result;
 // }
 
-// /**
-//  * @brief Determines if set1 is sub-set or equal to set2
-//  *
-//  * @param set1 1.set
-//  * @param set2 2.set
-//  * @param uni Universe containing elements of the two sets
-//  */
-// Set *set_subseteq(Set *set1, Set *set2, Univerzum *uni, Set *result)
-// {
+Set *subseteq(Set *args[])
+{
+    Set *set1 = args[0];
+    Set *set2 = args[1];
 
-//     // if element is found in intersection, dont add it into set
-//     // if found is false, it should be added cause it's not in intersection of 2 sets and it's in set 1
-//     for (int i = 0; i < (int)set1->len; i++)
-//     {
-//         bool found = false;
+    for (int i = 0; i < set1->len; i++)
+        if (set_get_element(set2, set1->elements[i]) == NULL)
+            return const_set_ctor(bol, false);
 
-//         for (int j = 0; j < (int)set2->len; j++)
-//         {
-//             if (set1->elements[i] == set2->elements[j])
-//             {
-//                 found = true;
-//                 break;
-//             }
-//         }
-//         if (!found)
-//         {
-//             printf("is not subset or equal"); // TODO: delete this
-//             set_init(&result, bol, NULL, 0);
-//             return &result;
-//         }
-//     }
-
-//     printf("is subset or equal"); // TODO: delete this
-//     set_init(&result, bol, NULL, 1);
-//     return &result;
-// }
+    return const_set_ctor(bol, true);
+}
 
 // /**
 //  * @brief Determines if set1 is sub-set of set2
