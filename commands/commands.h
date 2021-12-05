@@ -21,6 +21,7 @@ typedef CommandArgumentType *CommandArgs;
 typedef Set *(*Command)(Set *args[]);
 
 Set *intersect(Set *args[]);
+Set *complement(Set *args[]);
 
 typedef struct name_command
 {
@@ -35,7 +36,7 @@ static NameCommand commands[] = {
     // Sets of element commands
     {"empty", NULL, {elements, non}},
     {"card", NULL, {elements, non}},
-    {"complement", NULL, {elements, non}},
+    {"complement", &complement, {elements, non}},
     {"union", NULL, {elements, elements, non}},
     {"intersect", &intersect, {elements, elements, non}},
     {"minus", NULL, {elements, elements, non}},

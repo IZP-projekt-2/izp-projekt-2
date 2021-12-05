@@ -68,44 +68,44 @@ Set *intersect(Set *args[])
 //     return &result;
 // }
 
-// /**
-//  * @brief Returns pointer to complement of 1.set
-//  *
-//  * @param set1 1.set
-//  * @param uni Universe
-//  */
-// Set *set_complement(Set *set1, Univerzum *uni, Set *result)
-// {
-//     if (result == NULL)
-//     {
-//         set_init(&result, 'S', NULL, 0);
-//     }
+/**
+ * @brief Returns pointer to complement of 1.set
+ *
+ * @param set1 1.set
+ * @param uni Universe
+ */
+Set *complement(Set *args[])
+{
+    Set *set = args[0];
+    Set *res = set_ctor(els, NULL, 0);
 
-//     // If element from 1.set IS NOT found in univerzum,
-//     // it is added to result
-//     for (int i = 0; i < (int)uni->len; i++)
-//     {
-//         bool found = false;
+    for (int i = 0; i < univerzum->len; i++)
+        if (set_get_element(set, univerzum->elements[i]) == NULL)
+            set_add_elements(res, &(univerzum->elements[i]), 1);
 
-//         for (int j = 0; j < (int)set1->len; j++)
-//         {
-//             if (uni->elements[i] == set1->elements[j])
-//             {
-//                 found = true;
-//                 break;
-//             }
-//         }
-//         if (!found)
-//         {
-//             set_add(&result, uni, uni->elements[i]);
-//         }
-//     }
+    // for (int i = 0; i < (int)uni->len; i++)
+    // {
+    //     bool found = false;
 
-//     set_print(&result);
-//     printf("\n");
+    //     for (int j = 0; j < (int)set1->len; j++)
+    //     {
+    //         if (uni->elements[i] == set1->elements[j])
+    //         {
+    //             found = true;
+    //             break;
+    //         }
+    //     }
+    //     if (!found)
+    //     {
+    //         set_add(&result, uni, uni->elements[i]);
+    //     }
+    // }
 
-//     return &result;
-// }
+    // set_print(&result);
+    // printf("\n");
+
+    return res;
+}
 
 // /**
 //  * @brief Returns if set is empty

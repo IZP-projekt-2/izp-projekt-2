@@ -44,6 +44,8 @@ int parse_line(FILE *input, Line *target)
 
 int parse_univerzum(FILE *input, Line *target)
 {
+    univerzum = set_ctor(uni, NULL, 0);
+
     if (load_set_elements(univerzum, input))
         return 1;
 
@@ -163,7 +165,6 @@ int parse_command(FILE *input, Line *target)
 int parse_file(FILE *file)
 {
     lines_init();
-    univerzum = set_ctor(uni, NULL, 0);
 
     for (int line_index = 1;; line_index++)
     {
@@ -174,11 +175,18 @@ int parse_file(FILE *file)
             return 1;
         }
 
-        lines[line_index] = line_ctor(0);
-        int res = parse_line(file, lines[line_index]);
+        Line *line = line_ctor(0);
+        int res = parse_line(file, line);
 
-        if (res == EOF)
-            break;
+        if (res)
+        {
+            line_dtor(line);
+            if (res == EOF)
+                break;
+            return res;
+        }
+
+        lines[line_index] = line;
     }
 
     return 0;

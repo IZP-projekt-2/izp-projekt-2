@@ -1,9 +1,13 @@
 U hello there abc def ghi xxx fff foo bar
 S foo bar
 S hello there foo
-S bar xxx fff
 S there def
+S 
+S bar xxx fff
 R (hello there) (foo bar)
 R (hello abc) (foo foo)
 C intersect 2 4
-C intersect 8 4
+C intersect 3 4
+C complement 3
+C complement 10
+C complement 5

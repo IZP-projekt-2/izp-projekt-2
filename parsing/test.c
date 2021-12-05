@@ -5,8 +5,11 @@
 int main(int argc, char **argv)
 {
     FILE *input = open_input_file(argc, argv);
-    parse_file(input);
+    int res = parse_file(input);
     fclose(input);
+
+    if (res)
+        return res;
 
     for (int i = 1;; i++)
     {
@@ -16,8 +19,10 @@ int main(int argc, char **argv)
 
         Set *set = line_get_set(line);
 
-        if (set != NULL)
-            set_print(set, stdout);
+        if (set == NULL)
+            return 1;
+
+        set_print(set, stdout);
     }
 
     lines_dtor();
