@@ -25,12 +25,16 @@ Line *line_ctor(Operation operation)
     for (int i = 0; i < MAX_COMMAND_ARGS + 1; i++)
         heap_pointer->args[i] = 0;
 
-    // for (int i = 0; i < MAX_COMMAND_ARGS; i++)
-    //     heap_pointer->expected_args[i] = non;
-
     return heap_pointer;
 }
 
+/**
+ * Gets set from a line. If line contains command executes that command and
+ * returns execution result. If any errors occur returns NULL.
+ *
+ * @param line Line cointaining wanted set.
+ * @return Pointer to a set.
+ */
 Set *line_get_set(Line *line)
 {
     if (line == NULL)
@@ -45,6 +49,7 @@ Set *line_get_set(Line *line)
     else if (line->operation == exe_command)
         return line_exec(line);
 
+    fprintf(stderr, "Empty Line object.\n");
     return NULL;
 }
 

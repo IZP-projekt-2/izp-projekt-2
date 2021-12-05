@@ -4,6 +4,8 @@
 
 int main(int argc, char **argv)
 {
+    black_listed = set_ctor(uni);
+
     FILE *input = open_input_file(argc, argv);
     int res = parse_file(input);
     fclose(input);

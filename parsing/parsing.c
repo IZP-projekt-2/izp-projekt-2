@@ -44,7 +44,7 @@ int parse_line(FILE *input, Line *target)
 
 int parse_univerzum(FILE *input, Line *target)
 {
-    univerzum = set_ctor(uni, NULL, 0);
+    univerzum = set_ctor(uni);
 
     if (load_set_elements(univerzum, input))
         return 1;
@@ -56,7 +56,7 @@ int parse_univerzum(FILE *input, Line *target)
 
 int parse_set(FILE *input, Line *target)
 {
-    Set *set = set_ctor(els, NULL, 0);
+    Set *set = set_ctor(els);
 
     if (set == NULL)
         return 1;
@@ -71,7 +71,7 @@ int parse_set(FILE *input, Line *target)
 
 int parse_relation(FILE *input, Line *target)
 {
-    Set *relation_set = set_ctor(rel, NULL, 0);
+    Set *relation_set = set_ctor(rel);
 
     if (relation_set == NULL)
         return 1;

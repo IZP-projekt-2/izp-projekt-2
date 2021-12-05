@@ -24,9 +24,14 @@ int main()
         "bar",
     };
 
-    univerzum = set_ctor(uni, uni_elements, 5);
-    Set *set1 = set_ctor(els, s1els, 2);
-    Set *set2 = set_ctor(els, s2els, 3);
+    black_listed = set_ctor(uni);
+    univerzum = set_ctor(uni);
+    Set *set1 = set_ctor(els);
+    Set *set2 = set_ctor(els);
+
+    set_add_elements(univerzum, uni_elements, 5);
+    set_add_elements(set1, s1els, 2);
+    set_add_elements(set2, s2els, 3);
 
     lines[1] = line_ctor(def_univerzum);
     lines[2] = line_ctor(def_set);
