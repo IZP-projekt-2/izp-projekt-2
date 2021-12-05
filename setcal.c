@@ -53,7 +53,6 @@ int set_init(Set *set, SetType type, char **elements, unsigned len);
 int set_create(Set *set, SetType type, unsigned len);
 int set_add_element(Set *set, char *element);
 void set_print(Set *set);
-  
 
 /******************************************************************************/
 
@@ -130,7 +129,7 @@ FILE *open_input_file(int argc, char **argv);
 void read_file(FILE *input_file);
 int load_word(FILE *input, char *target, unsigned *len, unsigned maxlen);
 bool is_letter(char ch);
-bool compare_strings(char* str1, char* str2);
+bool compare_strings(char *str1, char *str2);
 
 /******************************************************************************/
 int set_add(Set *set, char element[]);
@@ -138,6 +137,7 @@ void print_bool(bool b);
 bool is_rel_el_in_set(Set * rel, Set * set, bool is_second);
 
 // Set functions
+
 Set * set_union(Set *set1, Set *set2, Set *union_set);
 Set * set_intersect(Set *set1, Set *set2, Set *intersect_set);
 Set * set_difference(Set *args[]);
@@ -166,20 +166,13 @@ Set * closure_ref(Set * args[]);
 Set * closure_sym(Set * args[]);
 Set * closure_trans(Set * args[]);
 
-
 int main(int argc, char **argv)
 {
     univerzum_ctor(&univerzum);
     FILE *input_file = open_input_file(argc, argv);
     read_file(input_file);
-
-    Set * sets[2];
-    sets[0] = lines[2].related_set;
-    sets[1] = lines[3].related_set;
-
-    Set *result = set_equal(sets);
-    printf("\nlen: %d", result->len);
-
+  
+  
     fclose(input_file);
 }
 
@@ -544,7 +537,7 @@ char *univerzum_get_element(Univerzum *uni, char element[])
 void print_univerzum(Univerzum *uni)
 {
     printf("\nUniverzum: ");
-    for(int i = 0; i < (int)uni->len; i++)
+    for (int i = 0; i < (int)uni->len; i++)
     {
         printf("%s ", uni->elements[i]);
     }
@@ -630,6 +623,7 @@ void line_link_set(Line *line, Set *set)
 }
 
 /*********************************************************************/
+
 int set_add(Set *set, char element[]) {
     char ** tmp = realloc(set->elements, (set->len + 1) * sizeof(char *)); 
     if(tmp == NULL) {
@@ -642,6 +636,7 @@ int set_add(Set *set, char element[]) {
     return 0;
 }
 
+
 //prints the bool value
 void print_bool(bool b) {
     printf(b ? "true\n" : "false\n");
@@ -649,7 +644,7 @@ void print_bool(bool b) {
 
 /**
  * @brief Prints the union of two sets
- * 
+ *
  * @param set1 1.set
  * @param set2 2.set
  * @param union_set a set that will be returned as a union of set 1 and 2
@@ -665,11 +660,13 @@ Set * set_union(Set *set1, Set *set2, Set *union_set) {
     for(unsigned i = 0; i < set2->len; i++) {
         bool el_in_both = false;
         unsigned j = 0;
-        for(; j < set1->len; j++) {
-            if(set2->elements[i] == set1->elements[j]) {
+        for (; j < set1->len; j++)
+        {
+            if (set2->elements[i] == set1->elements[j])
+            {
                 el_in_both = true;
                 break;
-            }    
+            }
         }
         if(!el_in_both) {
             set_add(union_set, set2->elements[i]);
@@ -680,7 +677,7 @@ Set * set_union(Set *set1, Set *set2, Set *union_set) {
 
 /**
  * @brief Prints the intersect of two sets
- * 
+ *
  * @param set1 1.set
  * @param set2 2.set
  * @param uni Universe containing elements of the two sets
@@ -696,11 +693,12 @@ Set * set_intersect(Set * set1, Set * set2, Set * intersect_set) {
             if(set1->elements[i] == set2->elements[j]) {
                 set_add(intersect_set, set1->elements[i]);
                 break;
-            }    
+            }
         }
     }
     return intersect_set;
 }
+
 
 // TODO: delete this
 bool compare_strings(char* str1, char* str2)
@@ -715,10 +713,9 @@ bool compare_strings(char* str1, char* str2)
     return true;
 }
 
-
 /**
  * @brief Returns pointer to difference of 2 sets
- * 
+ *
  * @param set1 1.set
  * @param set2 2.set
  * @param uni Universe containing elements of the two sets
@@ -730,22 +727,21 @@ Set * set_difference(Set * args[])
     Set *result = malloc(sizeof(int));
     set_init(result, 'S', NULL, 0);
 
-
     // if element is found in intersection, dont add it into set
     // if found is false, it should be added cause it's not in intersection of 2 sets and it's in set 1
-    for(int i = 0; i < (int)set1->len; i++) 
+    for (int i = 0; i < (int)set1->len; i++)
     {
         bool found = false;
-        
-        for(int j = 0; j < (int)set2->len; j++) 
+
+        for (int j = 0; j < (int)set2->len; j++)
         {
-            if(set1->elements[i] == set2->elements[j]) 
+            if (set1->elements[i] == set2->elements[j])
             {
                 found = true;
                 break;
-            }    
+            }
         }
-        if(!found) 
+        if (!found)
         {
             set_add(result, set1->elements[i]);
         }
@@ -758,7 +754,7 @@ Set * set_difference(Set * args[])
 
 /**
  * @brief Returns pointer to complement of 1.set
- * 
+ *
  * @param set1 1.set
  * @param uni Universe
  */
@@ -773,16 +769,16 @@ Set * set_complement(Set * args[])
     for(int i = 0; i < (int)univerzum.len; i++) 
     {
         bool found = false;
-        
-        for(int j = 0; j < (int)set1->len; j++) 
+
+        for (int j = 0; j < (int)set1->len; j++)
         {
             if(univerzum.elements[i] == set1->elements[j]) 
             {
                 found = true;
                 break;
-            }    
+            }
         }
-        if(!found) 
+        if (!found)
         {
             set_add(result, univerzum.elements[i]);
         }
@@ -1410,7 +1406,7 @@ Set * closure_trans(Set * args[]) {
 
 /*
  * @brief Returns if set is empty
- * 
+ *
  * @param set1 1.set
  * @param uni Universe
  */
@@ -1433,25 +1429,22 @@ Set * set_empty(Set * args[])
     return result;
 }
 
-
 /**
  * @brief Returns length of set
- * 
+ *
  * @param set1 1.set
  */
 Set * set_card(Set * args[]) 
 {
     Set *set1 = args[0];
     Set *result = malloc(sizeof(int));
-
     set_create(result, num, set1->len); 
     return result;
 }
 
-
 /**
  * @brief Determines if set1 is sub-set or equal to set2
- * 
+ *
  * @param set1 1.set
  * @param set2 2.set
  */
@@ -1464,19 +1457,19 @@ Set * set_subseteq(Set * args[])
 
     // if element is found in intersection, dont add it into set
     // if found is false, it should be added cause it's not in intersection of 2 sets and it's in set 1
-    for(int i = 0; i < (int)set1->len; i++) 
+    for (int i = 0; i < (int)set1->len; i++)
     {
         bool found = false;
-        
-        for(int j = 0; j < (int)set2->len; j++) 
+
+        for (int j = 0; j < (int)set2->len; j++)
         {
-            if(set1->elements[i] == set2->elements[j]) 
+            if (set1->elements[i] == set2->elements[j])
             {
                 found = true;
                 break;
-            }    
+            }
         }
-        if(!found) 
+        if (!found)
         {
             printf("is not subset or equal"); // TODO: delete this
             result->len = 0;
@@ -1489,10 +1482,9 @@ Set * set_subseteq(Set * args[])
     return result;
 }
 
-
 /**
  * @brief Determines if set1 is sub-set of set2
- * 
+ *
  * @param set1 1.set
  * @param set2 2.set
  * @param uni Universe containing elements of the two sets
@@ -1508,20 +1500,20 @@ Set * set_subset(Set * args[])
 
     // if element is found in intersection, dont add it into set
     // if found is false, it should be added cause it's not in intersection of 2 sets and it's in set 1
-    for(int i = 0; i < (int)set1->len; i++) 
+    for (int i = 0; i < (int)set1->len; i++)
     {
         bool found = false;
-        
-        for(int j = 0; j < (int)set2->len; j++) 
+
+        for (int j = 0; j < (int)set2->len; j++)
         {
-            if(set1->elements[i] == set2->elements[j]) 
+            if (set1->elements[i] == set2->elements[j])
             {
                 found = true;
                 same_elements++;
                 break;
             }
         }
-        if(!found) 
+        if (!found)
         {
             printf("is not subset"); // TODO: delete this
             result->len = 0;
@@ -1529,9 +1521,9 @@ Set * set_subset(Set * args[])
         }
     }
 
-    if(same_elements == (int)set2->len)
+    if (same_elements == (int)set2->len)
     {
-        // sets are equal 
+        // sets are equal
         // (all elements is set1 is in set2 and they have same length)
         printf("is not subset"); // TODO: delete this
         result->len = 0;
@@ -1544,10 +1536,9 @@ Set * set_subset(Set * args[])
     return result;
 }
 
-
 /**
  * @brief Determines if set1 is equal to set2
- * 
+ *
  * @param set1 1.set
  * @param set2 2.set
  * @param uni Universe containing elements of the two sets
@@ -1564,20 +1555,20 @@ Set * set_equal(Set * args[])
 
     // if element is found in intersection, dont add it into set
     // if found is false, it should be added cause it's not in intersection of 2 sets and it's in set 1
-    for(int i = 0; i < (int)set1->len; i++) 
+    for (int i = 0; i < (int)set1->len; i++)
     {
         bool found = false;
-        
-        for(int j = 0; j < (int)set2->len; j++) 
+
+        for (int j = 0; j < (int)set2->len; j++)
         {
-            if(set1->elements[i] == set2->elements[j]) 
+            if (set1->elements[i] == set2->elements[j])
             {
                 found = true;
                 same_elements++;
                 break;
             }
         }
-        if(!found) 
+        if (!found)
         {
             printf("is not equal"); // TODO: delete this
             result->len = 0;
@@ -1585,9 +1576,9 @@ Set * set_equal(Set * args[])
         }
     }
 
-    if(same_elements == (int)set2->len)
+    if (same_elements == (int)set2->len)
     {
-        // sets are equal 
+        // sets are equal
         // (all elements is set1 is in set2 and they have same length)
         printf("is equal"); // TODO: delete this
         result->len = 1;

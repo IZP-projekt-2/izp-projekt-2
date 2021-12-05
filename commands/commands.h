@@ -16,16 +16,18 @@ typedef enum arg_type
             // raised.
 } CommandArgumentType;
 
-typedef CommandArgumentType CommandArgs[MAX_COMMAND_ARGS + 1];
+typedef CommandArgumentType Arglist[MAX_COMMAND_ARGS + 1];
+typedef CommandArgumentType *CommandArgs;
 typedef Set *(*Command)(Set *args[]);
 
 Set *intersect(Set *args[]);
+Set *complement(Set *args[]);
 
 typedef struct name_command
 {
     char *name;
     Command command;
-    CommandArgs expected_args;
+    Arglist expected_args;
 } NameCommand;
 
 static NameCommand commands[] = {
@@ -34,7 +36,7 @@ static NameCommand commands[] = {
     // Sets of element commands
     {"empty", NULL, {elements, non}},
     {"card", NULL, {elements, non}},
-    {"complement", NULL, {elements, non}},
+    {"complement", &complement, {elements, non}},
     {"union", NULL, {elements, elements, non}},
     {"intersect", &intersect, {elements, elements, non}},
     {"minus", NULL, {elements, elements, non}},

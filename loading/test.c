@@ -4,14 +4,18 @@
 int main(int argc, char **argv)
 {
     FILE *input = open_input_file(argc, argv);
-    univerzum = set_ctor(uni, NULL, 0);
-    Set *set1 = set_ctor(els, NULL, 0);
-    Set *set_empty = set_ctor(els, NULL, 0);
-    Set *set2 = set_ctor(els, NULL, 0);
-    Set *rel1 = set_ctor(rel, NULL, 0);
-    Set *rel_empty = set_ctor(rel, NULL, 0);
-    Set *rel2 = set_ctor(rel, NULL, 0);
-    Set *rel3 = set_ctor(rel, NULL, 0);
+
+    univerzum = set_ctor(uni);
+    black_listed = set_ctor(uni);
+
+    Set *set1 = set_ctor(els);
+    Set *set_empty = set_ctor(els);
+    Set *set2 = set_ctor(els);
+    Set *rel1 = set_ctor(rel);
+    Set *rel_empty = set_ctor(rel);
+    Set *rel2 = set_ctor(rel);
+    Set *rel3 = set_ctor(rel);
+
     assert(input != NULL);
 
     assert(!load_set_elements(univerzum, input));

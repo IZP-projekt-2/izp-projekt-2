@@ -47,11 +47,12 @@ typedef struct set
     int len; // Number of elements. For constant sets stores value.
 } Set;
 
-Set *univerzum; /** @todo change to static once its in a single file */
+Set *black_listed; // Set containing all unallowed elements.
+Set *univerzum;    // Univerzum of a program.
 
 bool is_constant_type(SetType type);
 
-Set *set_ctor(SetType type, char *init_elements[], int init_len);
+Set *set_ctor(SetType type);
 Set *const_set_ctor(SetType type, int value);
 char *set_get_element(Set *set, char element[]);
 bool set_contains_relation(Set *set, char *first, char *second);

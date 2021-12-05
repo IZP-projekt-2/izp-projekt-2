@@ -58,7 +58,7 @@ FILE *open_input_file(int argc, char **argv)
 
     if (argc != 2)
     {
-        fprintf(stderr, "Invalid number of arguments.\n");
+        fprintf(stderr, "Invalid number of program arguments.\n");
         return NULL;
     }
 

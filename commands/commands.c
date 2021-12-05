@@ -4,7 +4,7 @@ Set *intersect(Set *args[])
 {
     Set *set1 = args[0];
     Set *set2 = args[1];
-    Set *intersect_set = set_ctor(els, NULL, 0);
+    Set *intersect_set = set_ctor(els);
 
     for (int i = 0; i < set1->len; i++)
     {
@@ -16,96 +16,23 @@ Set *intersect(Set *args[])
     return intersect_set;
 }
 
-// bool compare_strings(char *str1, char *str2)
-// {
-//     for (int i = 0; str1[i] != '\0' || str2[i] != '\0'; i++)
-//     {
-//         if (str1[i] != str2[i])
-//         {
-//             return false;
-//         }
-//     }
-//     return true;
-// }
+/**
+ * @brief Returns pointer to complement of 1.set
+ *
+ * @param set1 1.set
+ * @param uni Universe
+ */
+Set *complement(Set *args[])
+{
+    Set *set = args[0];
+    Set *res = set_ctor(els);
 
-// /**
-//  * @brief Returns pointer to difference of 2 sets
-//  *
-//  * @param set1 1.set
-//  * @param set2 2.set
-//  * @param uni Universe containing elements of the two sets
-//  */
-// Set *set_difference(Set *set1, Set *set2, Univerzum *uni, Set *result)
-// {
-//     if (result == NULL)
-//     {
-//         set_init(&result, 'S', NULL, 0);
-//     }
+    for (int i = 0; i < univerzum->len; i++)
+        if (set_get_element(set, univerzum->elements[i]) == NULL)
+            set_add_elements(res, &(univerzum->elements[i]), 1);
 
-//     // if element is found in intersection, dont add it into set
-//     // if found is false, it should be added cause it's not in intersection of 2 sets and it's in set 1
-//     for (int i = 0; i < (int)set1->len; i++)
-//     {
-//         bool found = false;
-
-//         for (int j = 0; j < (int)set2->len; j++)
-//         {
-//             if (set1->elements[i] == set2->elements[j])
-//             {
-//                 found = true;
-//                 break;
-//             }
-//         }
-//         if (!found)
-//         {
-//             set_add(&result, uni, set1->elements[i]);
-//         }
-//     }
-
-//     set_print(&result);
-//     printf("\n");
-
-//     return &result;
-// }
-
-// /**
-//  * @brief Returns pointer to complement of 1.set
-//  *
-//  * @param set1 1.set
-//  * @param uni Universe
-//  */
-// Set *set_complement(Set *set1, Univerzum *uni, Set *result)
-// {
-//     if (result == NULL)
-//     {
-//         set_init(&result, 'S', NULL, 0);
-//     }
-
-//     // If element from 1.set IS NOT found in univerzum,
-//     // it is added to result
-//     for (int i = 0; i < (int)uni->len; i++)
-//     {
-//         bool found = false;
-
-//         for (int j = 0; j < (int)set1->len; j++)
-//         {
-//             if (uni->elements[i] == set1->elements[j])
-//             {
-//                 found = true;
-//                 break;
-//             }
-//         }
-//         if (!found)
-//         {
-//             set_add(&result, uni, uni->elements[i]);
-//         }
-//     }
-
-//     set_print(&result);
-//     printf("\n");
-
-//     return &result;
-// }
+    return res;
+}
 
 // /**
 //  * @brief Returns if set is empty

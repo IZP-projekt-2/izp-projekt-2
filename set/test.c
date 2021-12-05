@@ -14,7 +14,9 @@ void test_uni()
         "bar",
     };
 
-    univerzum = set_ctor(uni, elements, 3);
+    univerzum = set_ctor(uni);
+
+    set_add_elements(univerzum, elements, 3);
 
     assert(univerzum != NULL);
     assert(univerzum->type == uni);
@@ -96,14 +98,15 @@ void test_elements()
         "foo",
     };
 
-    univerzum = set_ctor(uni, uni_elements, 5);
-    Set *test_set = set_ctor(els, succ_els, 3);
-    Set *f1_set = set_ctor(els, f1_els, 4);
-    Set *f2_set = set_ctor(els, f2_els, 4);
+    univerzum = set_ctor(uni);
+    Set *test_set = set_ctor(els);
+    Set *f1_set = set_ctor(els);
+    Set *f2_set = set_ctor(els);
 
-    assert(test_set != NULL);
-    assert(f1_set == NULL);
-    assert(f2_set == NULL);
+    assert(!set_add_elements(univerzum, uni_elements, 5));
+    assert(!set_add_elements(test_set, succ_els, 3));
+    assert(set_add_elements(f1_set, f1_els, 4));
+    assert(set_add_elements(f2_set, f2_els, 4));
 
     char *abc = set_get_element(test_set, "abc");
     char *abc_uni = set_get_element(univerzum, "abc");
@@ -137,6 +140,10 @@ void test_elements()
     assert(foo != NULL);
 
     assert(abc == abc_uni);
+
+    set_dtor(test_set);
+    set_dtor(f1_set);
+    set_dtor(f2_set);
 }
 
 void test_rels()
@@ -180,19 +187,25 @@ void test_rels()
         "doesntexist",
     };
 
-    univerzum = set_ctor(uni, uni_elements, 5);
-    Set *test_set = set_ctor(rel, succ_els, 6);
-    Set *f1_set = set_ctor(rel, f1_els, 6);
-    Set *f2_set = set_ctor(rel, f2_els, 5);
-    Set *f3_set = set_ctor(rel, f3_els, 2);
+    univerzum = set_ctor(uni);
+    Set *test_set = set_ctor(rel);
+    Set *f1_set = set_ctor(rel);
+    Set *f2_set = set_ctor(rel);
+    Set *f3_set = set_ctor(rel);
+
+    assert(!set_add_elements(univerzum, uni_elements, 5));
+    assert(!set_add_elements(test_set, succ_els, 6));
+    assert(set_add_elements(f1_set, f1_els, 6));
+    assert(set_add_elements(f2_set, f2_els, 5));
+    assert(set_add_elements(f3_set, f3_els, 2));
 
     set_print(univerzum, stdout);
     set_print(test_set, stdout);
 
-    assert(test_set != NULL);
-    assert(f1_set == NULL);
-    assert(f2_set == NULL);
-    assert(f3_set == NULL);
+    set_dtor(test_set);
+    set_dtor(f1_set);
+    set_dtor(f2_set);
+    set_dtor(f3_set);
 }
 
 void test_constant_elements()
@@ -210,12 +223,28 @@ void test_constant_elements()
     set_print(num_val, stdout);
     set_print(false_val, stdout);
     set_print(true_val, stdout);
+
+    set_dtor(num_val);
+    set_dtor(false_val);
+    set_dtor(true_val);
 }
 
 int main()
 {
+    black_listed = set_ctor(uni);
+    univerzum = set_ctor(uni);
+
     test_uni();
     test_elements();
     test_rels();
     test_constant_elements();
+
+    char *blacklisted[] = {
+        "false"};
+
+    set_add_elements(black_listed, blacklisted, 1);
+    assert(set_add_elements(univerzum, blacklisted, 1));
+
+    set_dtor(black_listed);
+    set_dtor(univerzum);
 }

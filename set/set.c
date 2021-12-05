@@ -24,7 +24,7 @@ bool is_constant_type(SetType type)
  * @param init_len Length of init_elements.
  * @return Pointer to set on a heap.
  */
-Set *set_ctor(SetType type, char *init_elements[], int init_len)
+Set *set_ctor(SetType type)
 {
     if (is_constant_type(type))
     {
@@ -52,12 +52,6 @@ Set *set_ctor(SetType type, char *init_elements[], int init_len)
     heap_pointer->len = 0;
     heap_pointer->type = type;
     heap_pointer->elements = NULL;
-
-    if (init_len && set_add_elements(heap_pointer, init_elements, init_len))
-    {
-        free(heap_pointer);
-        return NULL;
-    }
 
     return heap_pointer;
 }
@@ -217,6 +211,13 @@ int set_add_elements(Set *set, char *elements[], int len)
 
         if (set->type == uni)
         {
+            if (set_get_element(black_listed, element) != NULL)
+            {
+                fprintf(stderr,
+                        "\"%s\" cannot be used as an element.\n", element);
+                return 1;
+            }
+
             char *str_heap_pointer = malloc(strlen(element) + 1);
 
             if (str_heap_pointer == NULL)

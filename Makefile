@@ -1,5 +1,5 @@
 CFLAGS = -std=c99 -Wall -Wextra -Werror
-test_dirs = set loading lines
+test_dirs = set loading lines parsing
 
 .PHONY: test $(test_dirs)
 

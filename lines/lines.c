@@ -20,16 +20,21 @@ Line *line_ctor(Operation operation)
     heap_pointer->operation = operation;
     heap_pointer->related_set = NULL;
     heap_pointer->command = NULL;
+    heap_pointer->expected_args = NULL;
 
     for (int i = 0; i < MAX_COMMAND_ARGS + 1; i++)
         heap_pointer->args[i] = 0;
 
-    for (int i = 0; i < MAX_COMMAND_ARGS; i++)
-        heap_pointer->expected_args[i] = non;
-
     return heap_pointer;
 }
 
+/**
+ * Gets set from a line. If line contains command executes that command and
+ * returns execution result. If any errors occur returns NULL.
+ *
+ * @param line Line cointaining wanted set.
+ * @return Pointer to a set.
+ */
 Set *line_get_set(Line *line)
 {
     if (line == NULL)
@@ -44,6 +49,7 @@ Set *line_get_set(Line *line)
     else if (line->operation == exe_command)
         return line_exec(line);
 
+    fprintf(stderr, "Empty Line object.\n");
     return NULL;
 }
 
@@ -164,6 +170,12 @@ int eval_args(unsigned arglist[],
               Set *target[],
               unsigned *param)
 {
+    if (expected == NULL)
+    {
+        fprintf(stderr, "Argument patter not specified.\n");
+        return 1;
+    }
+
     int i = 0;
 
     for (i = 0; i < MAX_COMMAND_ARGS; i++)
