@@ -3,6 +3,9 @@ test_dirs = set loading lines parsing
 
 .PHONY: test $(test_dirs)
 
+run: setcal
+	@./setcal input.txt
+
 test: $(test_dirs)
 	
 $(test_dirs): 

@@ -1,6 +1,7 @@
-U abc a b c bcs c x y zzz a qqq a
-S a b c
-S x y zzz
-R (a b) (b c) (x zzz) (zzz y)
+U hello there abc def ghi xxx fff foo bar abcdefghijabcdefghijabcdefghij
+S foo bar
+S hello foo
+C subseteq 2 3 6
 C intersect 2 3
-C minus 2 3
+C complement 5
+C subseteq 2 1 6
